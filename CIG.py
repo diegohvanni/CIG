@@ -10,7 +10,7 @@ import tkinter as tk
 window = tk.Tk()
 window.title("CONTENT Inserts Generator (CIG)")
 processSource = tk.IntVar() #used for processing "en_source" file
-canvas = tk.Canvas(window, width = 450, height = 300,  relief = 'raised')
+canvas = tk.Canvas(window, width = 450, height = 350,  relief = 'raised')
 canvas.pack()
 
 title = tk.Label(window, text='CONTENT Inserts Generator (CIG)')
@@ -31,16 +31,23 @@ canvas.create_window(90, 150, window=fieldLabel2)
 entry2 = tk.Entry(window)
 canvas.create_window(100, 170, window=entry2)
 
-fieldLabel3 = tk.Label(window, text='Process \"en_source\" file')
+fieldLabel3 = tk.Label(window, text='Enter the program number:')
 fieldLabel3.config(font=('helvetica', 12))
-canvas.create_window(350, 130, window=fieldLabel3)
+canvas.create_window(75, 200, window=fieldLabel3)
 
-entry3 = tk.Checkbutton(window, variable=processSource, onvalue=1, offvalue=0)
-canvas.create_window(350, 150, window=entry3)
+entry3 = tk.Entry(window)
+canvas.create_window(100, 220, window=entry3)
+
+fieldLabel4 = tk.Label(window, text='Process \"en_source\" file')
+fieldLabel4.config(font=('helvetica', 12))
+canvas.create_window(350, 150, window=fieldLabel4)
+
+entry4 = tk.Checkbutton(window, variable=processSource, onvalue=1, offvalue=0)
+canvas.create_window(350, 170, window=entry4)
 
 signature = tk.Label(window, text='by Diego H. Vanni - dvanni@paypal.com')
 signature.config(font=('helvetica', 12))
-canvas.create_window(350, 290, window=signature)
+canvas.create_window(350, 340, window=signature)
 
 # GUI ENDS
 
@@ -50,12 +57,12 @@ def cig():
 
     ticketNumber = entry1.get() #getting Ticket Number from GUI
     URL = entry2.get() #getting Folder Path from GUI
+    progNumber = entry3.get() #getting Program Number
 
 #MAIN PROCESSING STARTS
 
     #creating output file using "UTF-8" encoding to avoid issues with special char
-    #o = open(URL+"/CONTENT - "+ticketNumber+" - DSQL.txt","w+", 1,"utf-8", "Save File Error!")
-    o = open(URL+"/CONTENT - "+ticketNumber+" - DSQL.txt","w+", 1,"utf-8-sig", "Save File Error!") #generating UTF-8+BOM
+    o = open(URL+"/CONTENT - "+ticketNumber+" (Program "+progNumber+") "+" - DSQL.txt","w+", 1,"utf-8-sig", "Save File Error!") #generating UTF-8+BOM
 
     #capturing folder structure for all available languages
     languages = {}
@@ -82,7 +89,6 @@ def cig():
 
         #declaring/setting single use variables
         totalKeys = len(data['content']) #get total keys
-        walletNumber = data.get("walletNumber") #get walletNumber
         channel = data.get("channel") #get channel
 
         #iterating through all available keys on english file
@@ -97,16 +103,20 @@ def cig():
             else:
                 desc = "'"+data['content'][x]['description']+"'" #description is not null/empty
 
+            #escape characters from "content"
+            con = data['content'][x]['content'].replace("'", "\\'").replace('"', '\\"').replace("`", "\\`")
+
             #composing and writing output to file
             o.write("REPLACE INTO content_translations (keyName, walletNumber, type, status, description, channel, locale, content, fileContent, fileExtension, htmlEmailMessageType, serviceCallerIdentificationId, creationDate, latUpdated, version, migratedContent, migratedNonSecureContent, legacyUrls) VALUES ("
                     +"'"+data['content'][x]['keyName']+"',"
-                    +str(walletNumber)+","
+                    +str(progNumber)+","
                     +"'"+data['content'][x]['type']+"',"
                     +"'"+"ENABLED"+"',"
                     +desc+","
                     +"'"+channel+"',"
                     +"'en',"
-                    +"'"+data['content'][x]['content']+"',"
+                    #+"'"+data['content'][x]['content'].replace("'", "\\'").replace('"', '\\"').replace("`", "\\`")+"',"
+                    +"'"+con+"',"
                     +"null,"
                     +"null,"
                     +str(html)+","
@@ -135,7 +145,6 @@ def cig():
 
         #declaring/setting single use variables
         totalKeys = len(data['content']) #get total keys
-        walletNumber = data.get("walletNumber") #get walletNumber
         channel = data.get("channel") #get channel
 
         #iterating through all available keys on additional english files
@@ -149,16 +158,21 @@ def cig():
                 desc = "null" #description is null/empty
             else:
                 desc = "'"+data['content'][y]['description']+"'" #description is not null/empty
+
+            #escape characters from "content"
+            con = data['content'][y]['content'].replace("'", "\\'").replace('"', '\\"').replace("`", "\\`")
+
             #composing and writing output to file
             o.write("REPLACE INTO content_translations (keyName, walletNumber, type, status, description, channel, locale, content, fileContent, fileExtension, htmlEmailMessageType, serviceCallerIdentificationId, creationDate, latUpdated, version, migratedContent, migratedNonSecureContent, legacyUrls) VALUES ("
                     +"'"+data['content'][y]['keyName']+"',"
-                    +str(walletNumber)+","
+                    +str(progNumber)+","
                     +"'"+data['content'][y]['type']+"',"
                     +"'"+"ENABLED"+"',"
                     +desc+","
                     +"'"+channel+"',"
                     +"'"+langs[l]+"',"
-                    +"'"+data['content'][y]['content']+"',"
+                    #+"'"+data['content'][y]['content'].replace("'", "\\'").replace('"', '\\"').replace("`", "\\`")+"',"
+                    +"'"+con+"',"
                     +"null,"
                     +"null,"
                     +str(html)+","
@@ -175,13 +189,13 @@ def cig():
     #throwing completion message to the GUI
     conclusionLabel = tk.Label(window, text='Done!')
     conclusionLabel.config(font=('helvetica', 12))
-    canvas.create_window(200, 270, window=conclusionLabel)
+    canvas.create_window(225, 320, window=conclusionLabel)
 
     #closing output file
     o.close()
 
 #declaring GUI button + action
 button = tk.Button(text='Generate Stripts!', command=cig, bg='black', fg='black', font=('helvetica', 12, 'bold'))
-canvas.create_window(200, 250, window=button)
+canvas.create_window(225, 300, window=button)
 
 window.mainloop()
