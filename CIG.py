@@ -187,7 +187,7 @@ def cig():
     o.close()
 
 #declaring GUI button + action
-button = tk.Button(text='Generate Stripts!', command=cig, bg='black', fg='black', font=('helvetica', 12, 'bold'))
+button = tk.Button(text='Generate Scripts!', command=cig, bg='black', fg='black', font=('helvetica', 12, 'bold'))
 canvas.create_window(225, 250, window=button)
 
 window.mainloop()
