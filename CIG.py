@@ -64,7 +64,7 @@ def cig():
             languages[d] = os.path.join(d)
 
     #converting dictionary onto array for iteration
-    langs = list(languages.values())[1:len(languages)]
+    langs = list(languages.values())[0:len(languages)]
 
 
 #Processing English
